@@ -13,6 +13,7 @@ import {
 import { z } from "zod";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 const aiRequestSchema = z
   .object({
@@ -51,6 +52,7 @@ export async function POST(request: Request): Promise<Response> {
       quote: parsedBody.data.quote,
       userMessage: parsedBody.data.message,
       clarification: parsedBody.data.clarification,
+      signal: request.signal,
     });
 
     return Response.json(response);
@@ -62,8 +64,9 @@ export async function POST(request: Request): Promise<Response> {
     if (error instanceof GeminiApiError) {
       console.error("Gemini API request failed", {
         status: error.status,
-        model: process.env.GEMINI_MODEL?.trim() || "default",
-        message: error.message.slice(0, 600),
+        model: error.model ?? (process.env.GEMINI_MODEL?.trim() || "default"),
+        attempts: error.attempts,
+        message: error.message.slice(0, 800),
       });
 
       if (error.status === 429) {
@@ -85,6 +88,13 @@ export async function POST(request: Request): Promise<Response> {
 
       if (error.status === 401 || error.status === 403) {
         return jsonError({ error: "Cle Gemini invalide ou non autorisee." }, 503);
+      }
+
+      if (error.status === 504) {
+        return jsonError(
+          { error: "Gemini met trop de temps a repondre. Reessayez." },
+          504,
+        );
       }
 
       if (error.status === 404) {

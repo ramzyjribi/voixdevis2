@@ -1,6 +1,6 @@
 # Status - VoixDevis MVP
 
-Derniere mise a jour: 2026-06-24
+Derniere mise a jour: 2026-11-26
 Source de planification: `docs/PLAN.md`  
 Architecture de reference: `docs/ARCHITECTURE.md`  
 Statut global: Phase 6 terminee, Phase 7 en attente de validation utilisateur
@@ -51,6 +51,7 @@ Statut global: Phase 6 terminee, Phase 7 en attente de validation utilisateur
 - Amelioration mobile post-Phase 6: sous le breakpoint desktop, le tableau est remplace par des articles compacts sur deux lignes, depliables pour modifier designation, quantite et prix ou supprimer la ligne.
 - Un resume mobile fixe `Total HT / TVA / Total TTC` reste visible tant que les totaux complets sont hors ecran, puis disparait automatiquement a leur entree dans le viewport.
 - Le correctif mobile est valide a 375 px sans debordement horizontal; edition, suppression, totaux reactifs, retour desktop, 34 tests, lint et build passent.
+- Amelioration post-Phase 6 (IA): `ai/geminiClient.ts` implemente une chaine de fallback sequentielle sur 5 modeles (`gemini-3.5-flash-lite`, `gemini-3.1-flash-lite`, `gemma-4-26b-a4b-it`, `gemini-3.6-flash`, `gemini-4-hydrogen`) avec priorite `GEMINI_MODEL`, `thinkingConfig: { thinkingLevel: ThinkingLevel.LOW }` sur les deux derniers, retrait de `temperature: 0.1`, timeout strict de 20 s par modele via `AbortController`, fail-fast sur cle absente ou `401/403`, et historique complet des tentatives dans `GeminiApiError` + `app/api/ai/route.ts` (`maxDuration = 60`, propagation `request.signal`, statut `504`). 40 tests, lint et build passent.
 - La Phase 7 ne doit pas etre demarree sans validation utilisateur explicite.
 
 ### Prochaine action recommandee
@@ -320,6 +321,7 @@ Compromis acceptes pour le MVP, non bloquants maintenant mais a suivre apres sta
 | 2026-06-24 | Phase 6 | Ajout du snapshot immutable, du document React PDF, du bouton et de l'export declenche par Gemini | Phase 6 terminee; 34 tests, lint, build et deux parcours de telechargement navigateur valides | Attendre validation utilisateur pour Phase 7 |
 | 2026-06-24 | Amelioration Phase 6 | Remplacement des remises predefinies par une saisie numerique avec unite `% / €` | Saisie libre, recalcul immediat, plafond 100 % et responsive sans debordement valides | Attendre validation utilisateur pour Phase 7 |
 | 2026-06-24 | Amelioration mobile Phase 6 | Remplacement du tableau mobile par des lignes compactes depliables et ajout du resume de totaux conditionnel | Portrait 375 px sans scroll horizontal; edition, suppression, disparition au footer, desktop, tests, lint et build valides | Attendre validation utilisateur pour Phase 7 |
+| 2026-11-26 | Amelioration IA Phase 4/6 | Ajout du fallback sequentiel 5 modeles avec timeout 20s, `thinkingConfig.LOW` cible, propagation `request.signal`, `maxDuration = 60` et tests deterministes | 40 tests, `npm run lint` et `npm run build` passes | Attendre validation utilisateur pour Phase 7 |
 
 ## 9. Comment mettre a jour ce fichier
 
